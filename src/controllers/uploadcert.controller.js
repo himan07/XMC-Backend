@@ -63,7 +63,7 @@ exports.uploadCertificate = (req, res) => {
       const bucketName = "mx-healthcare";
 
       // const medicalLicenseUrl = `${req.protocol}://${req.get("host")}/${medicalLicenseFileName}`;
-      const medicalLicenseUrl = `https://07d3-2409-40e3-5013-a773-dc3e-d890-7160-3ca9.ngrok-free.app/${bucketName}/${medicalLicenseFileName}`;
+      const medicalLicenseUrl = `https://9d77-2409-40e3-5013-a773-dc3e-d890-7160-3ca9.ngrok-free.app/${bucketName}/${medicalLicenseFileName}`;
 
       let personalIdUrl = null;
       if (req.files.personalId && req.files.personalId.length > 0) {
