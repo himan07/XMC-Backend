@@ -90,9 +90,9 @@ exports.uploadCertificate = (req, res) => {
     } catch (error) {
       console.error("Error details:", error);
       return res.status(500).json({
-        status: "failed,
+        status: "fail",
         message: "Internal Server Error",
-        error: error,
+        error: error.message,
       });
     }
   });
