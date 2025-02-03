@@ -1,7 +1,9 @@
 const Minio = require("minio");
 const dotenv = require("dotenv");
 
-dotenv.config();
+dotenv.config({
+  path: "./config.env",
+});
 
 const minioClient = new Minio.Client({
   endPoint: process.env.MINIO_ENDPOINT.replace("https://", "").replace("http://", ""),
