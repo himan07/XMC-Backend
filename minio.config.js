@@ -1,16 +1,14 @@
 const Minio = require("minio");
 const dotenv = require("dotenv");
 
-dotenv.config({
-  path: "./config.env",
-});
+dotenv.config({ path: "./config.env" });
 
 const minioClient = new Minio.Client({
-  endPoint: 'https://d081-2409-40e3-5e-2bc0-bc90-7a48-347a-3471.ngrok-free.app',
-  port: 443,
+  endPoint: process.env.MINIO_ENDPOINT.replace("https://", "").replace("/", ""), 
+  port: parseInt(process.env.MINIO_PORT, 10) || 443, 
   useSSL: true,
-  accessKey: 'himanshuyadav',
-  secretKey: '#Himan123',
+  accessKey: process.env.MINIO_ACCESS_KEY,
+  secretKey: process.env.MINIO_SECRET_KEY,
 });
 
 const bucketName = process.env.MINIO_BUCKET;
@@ -21,6 +19,8 @@ const bucketName = process.env.MINIO_BUCKET;
     if (!exists) {
       await minioClient.makeBucket(bucketName, "");
       console.log(`Bucket '${bucketName}' created successfully.`);
+    } else {
+      console.log(`Bucket '${bucketName}' already exists.`);
     }
   } catch (err) {
     console.error("Error with MinIO bucket:", err);
