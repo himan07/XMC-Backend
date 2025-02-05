@@ -62,7 +62,6 @@ exports.uploadCertificate = (req, res) => {
       await uploadToMinio(medicalLicenseFile, medicalLicenseFileName);
       const bucketName = "mx-healthcare";
 
-      // const medicalLicenseUrl = `${req.protocol}://${req.get("host")}/${medicalLicenseFileName}`;
       const medicalLicenseUrl = `${process.env.MINIO_ENDPOINT}/${bucketName}/${medicalLicenseFileName}`;
 
       let personalIdUrl = null;
