@@ -6,11 +6,11 @@ dotenv.config({
 });
 
 const minioClient = new Minio.Client({
-  endPoint: process.env.MINIO_ENDPOINT.replace("https://", "").replace("http://", ""),
-  port: parseInt(process.env.MINIO_PORT, 10),
-  useSSL: process.env.NODE_ENV === "production",
-  accessKey: process.env.MINIO_ACCESS_KEY,
-  secretKey: process.env.MINIO_SECRET_KEY,
+  endPoint: 'https://d081-2409-40e3-5e-2bc0-bc90-7a48-347a-3471.ngrok-free.app',
+  port: 443,
+  useSSL: true,
+  accessKey: 'himanshuyadav',
+  secretKey: '#Himan123',
 });
 
 const bucketName = process.env.MINIO_BUCKET;
