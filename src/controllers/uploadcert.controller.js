@@ -1,5 +1,5 @@
 const multer = require("multer");
-const minioClient = require("../../minio.config");
+const s3 = require("../../awsS3.config");
 const Image = require("../models/uploadcert.model");
 
 const upload = multer({
@@ -57,21 +57,29 @@ exports.uploadCertificate = (req, res) => {
         });
       }
 
-      const medicalLicenseFile = req.files.medicalLicense[0];
-      const medicalLicenseFileName = `${medicalLicenseFile.originalname}`;
-      await uploadToMinio(medicalLicenseFile, medicalLicenseFileName);
-      const bucketName = "mx-healthcare";
+      const bucketName = process.env.AWS_BUCKET_NAME;
 
-      const medicalLicenseUrl = `${process.env.MINIO_ENDPOINT}/${bucketName}/${medicalLicenseFileName}`;
+      const medicalLicenseFile = req.files.medicalLicense[0];
+      const medicalLicenseFileName = `${Date.now()}-${
+        medicalLicenseFile.originalname
+      }`;
+      const medicalLicenseUrl = await uploadToS3(
+        medicalLicenseFile,
+        bucketName,
+        medicalLicenseFileName
+      );
 
       let personalIdUrl = null;
       if (req.files.personalId && req.files.personalId.length > 0) {
         const personalIdFile = req.files.personalId[0];
-        const personalIdFileName = `${personalIdFile.originalname}`;
-        await uploadToMinio(personalIdFile, personalIdFileName);
-        personalIdUrl = `${req.protocol}://${req.get(
-          "host"
-        )}/${personalIdFileName}`;
+        const personalIdFileName = `${Date.now()}-${
+          personalIdFile.originalname
+        }`;
+        personalIdUrl = await uploadToS3(
+          personalIdFile,
+          bucketName,
+          personalIdFileName
+        );
       }
 
       const newImage = await Image.create({
@@ -89,29 +97,35 @@ exports.uploadCertificate = (req, res) => {
     } catch (error) {
       console.error("Error details:", error);
       return res.status(500).json({
-        status: "fail",
+        status: error.message,
         message: "Internal Server Error",
-        error: error,
+        error: error.message,
       });
     }
   });
 };
 
-const uploadToMinio = (file, fileName) => {
+const uploadToS3 = (file, bucketName, fileName) => {
   return new Promise((resolve, reject) => {
-    const bucketName = "mx-healthcare";
-    minioClient.putObject(
-      bucketName,
-      fileName,
-      file.buffer,
-      { "Content-Type": file.mimetype },
-      (minioErr) => {
-        if (minioErr) {
-          console.error(minioErr);
-          return reject(minioErr);
-        }
-        resolve();
+    if (!file || !file.buffer) {
+      return reject(new Error("Invalid file buffer"));
+    }
+
+    const params = {
+      Bucket: bucketName,
+      Key: fileName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.error("Error uploading to S3:", err);
+        return reject(err);
       }
-    );
+
+      console.log("S3 Upload Successful:", data);
+      resolve(data.Location);
+    });
   });
 };
