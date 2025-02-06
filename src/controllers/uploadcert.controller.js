@@ -1,5 +1,5 @@
 const multer = require("multer");
-const s3 = require("../../awsS3.config");
+const s3 = require("../../minio.config");
 const Image = require("../models/uploadcert.model");
 
 const upload = multer({
