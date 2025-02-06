@@ -1,30 +1,14 @@
-const Minio = require("minio");
+const AWS = require("aws-sdk");
 const dotenv = require("dotenv");
 
-dotenv.config({ path: "./config.env" });
-
-const minioClient = new Minio.Client({
-  endPoint: process.env.MINIO_ENDPOINT.replace("https://", "").replace("/", ""), 
-  port: parseInt(process.env.MINIO_PORT, 10) || 443, 
-  useSSL: true,
-  accessKey: process.env.MINIO_ACCESS_KEY,
-  secretKey: process.env.MINIO_SECRET_KEY,
+dotenv.config({
+  path: "./config.env",
 });
 
-const bucketName = process.env.MINIO_BUCKET;
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
 
-(async () => {
-  try {
-    const exists = await minioClient.bucketExists(bucketName);
-    if (!exists) {
-      await minioClient.makeBucket(bucketName, "");
-      console.log(`Bucket '${bucketName}' created successfully.`);
-    } else {
-      console.log(`Bucket '${bucketName}' already exists.`);
-    }
-  } catch (err) {
-    console.error("Error with MinIO bucket:", err);
-  }
-})();
-
-module.exports = minioClient;
+module.exports = s3;
